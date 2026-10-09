@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.hibernate.annotations.AnyDiscriminatorImplicitValues;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
@@ -29,11 +31,20 @@ public class Usuario {
     @Column(unique = true)
     private String cpf;
 
+    @OneToMany(mappedBy = "usuario")
+    private List<Reserva> reservas = new ArrayList<>();
+
     public Usuario(String name, LocalDate dataNascimento, String email, String cpf) {
         this.name = name;
         this.dataNascimento = dataNascimento;
         this.email = email;
         this.cpf = cpf;
+    }
+
+    public Usuario(String name, LocalDate dataNascimento, String email) {
+        this.name = name;
+        this.dataNascimento = dataNascimento;
+        this.email = email;
     }
 
     public Usuario() {}
