@@ -119,10 +119,88 @@ Atenção à concorrência: duas requisições simultâneas podem passar na chec
 
 **Erro:** 409 Conflict (ConflitoDeHorarioException)
 
-# Regras a serem analisadas
+## RN08: Não permitir reservas com início no passado
 
-- RN08: Não permitir reservas com início no passado.
-- RN09: Só o criador da reserva (ou um administrador) pode cancelá-la.
-- RN10: Uma reserva já cancelada não pode ser cancelada novamente.
-- RN11: Definir antecedência mínima e/ou máxima para reservar (ex.: no máximo 90 dias à frente).
-- RN12: Definir duração máxima da reserva.
+**Descrição:** dataInicio deve ser posterior ao momento atual da requisição.
+
+**Motivo:** Reservar um horário que já passou não tem utilidade e pode ser usado para fraudar relatórios de ocupação.
+
+**Detalhes:**
+
+- Compare sempre com o relógio do servidor, nunca com um horário enviado pelo cliente.
+- Injete um Clock no service em vez de chamar LocalDateTime.now() direto. Isso permite testar a regra com horários fixos.
+- Defina uma tolerância (ex.: 5 minutos) caso queira permitir reservas “para agora”. Sem tolerância, uma requisição às 14:00:03 com início às 14:00 seria rejeitada.
+- Cuidado com fuso horário: o servidor e o usuário podem estar em zonas diferentes. Defina um fuso padrão (ex.: America/Sao_Paulo) ou use OffsetDateTime/Instant.
+- Vale na criação e na edição de reservas.
+
+**Erro:** 422 Unprocessable Entity (DataNoPassadoException). No DTO, @Future cobre a checagem básica, mas o domínio deve repetir a regra por segurança.
+
+
+## RN09: Apenas o criador da reserva (ou um administrador) pode cancelá-la
+
+**Descrição:** O cancelamento só é permitido ao usuário que criou a reserva ou a um usuário com perfil de administrador.
+
+**Motivo:** Impede que um usuário derrube a reserva de outro, o que geraria conflitos e desconfiança no sistema.
+
+**Detalhes:**
+
+- Exige um conceito de perfil/papel no usuário (USUARIO, ADMIN), que pode ser um enum no início.
+- A identidade de quem solicita deve vir da autenticação (token/sessão), nunca de um parâmetro enviado no corpo da requisição. Caso contrário, qualquer um poderia se passar por outro. Até implementar Spring Security, você pode simular com um header, mas deixe documentado como solução provisória.
+- A comparação deve ser feita pelo ID do usuário, não por equals em objetos carregados separadamente (a menos que você tenha implementado equals/hashCode corretamente).
+- O cancelamento deve ser lógico (muda o status para CANCELADA), preservando o histórico.
+- Considere registrar quem cancelou e quando (canceladaPor, canceladaEm). Isso ajuda em auditoria, principalmente quando um admin cancela a reserva de terceiros.
+
+**Exemplos:**
+
+- Ana (usuário)	Ana	Permitido
+- Bruno (usuário)	Ana	Negado
+- Carlos (admin)	Ana	Permitido
+
+**Erro:** 403 Forbidden (AcessoNegadoException)
+
+## RN10: Reserva já cancelada não pode ser cancelada novamente
+
+**Descrição:** Só reservas com status ATIVA podem ser canceladas.
+
+**Motivo:** Evita operações redundantes, mantém o histórico limpo (a data de cancelamento não é sobrescrita) e deixa explícito para o cliente da API que algo está errado.
+
+**Detalhes:**
+
+- Isso é uma máquina de estados simples: ATIVA → CANCELADA. Não existe caminho de volta. Se quiser permitir reativar, trate como uma nova reserva (reverificando conflitos).
+- Se você evoluir o sistema, novos estados podem surgir (CONCLUIDA, EM_ANDAMENTO, NAO_COMPARECEU). Defina desde já quais transições são válidas.
+- Reservas já finalizadas (dataFim no passado) também não deveriam ser canceláveis, pois não há mais o que liberar. Vale incluir isso na regra.
+- Decisão de design: o cancelamento é idempotente (retorna sucesso se já estava cancelada) ou estrito (retorna erro)? A regra original adota o modelo estrito, que é mais explícito.
+
+
+**Erro:** 409 Conflict ou 422 Unprocessable Entity (ReservaNaoCancelavelException)
+
+
+## RN11: Antecedência mínima e máxima para reservar
+
+**Descrição:** Uma reserva só pode ser criada respeitando uma janela de tempo entre o momento da requisição e o início da reserva.
+
+**Motivo:**
+
+**Antecedência mínima:** dá tempo para preparar a sala (limpeza, equipamentos) e evita reservas de última hora que atrapalham a operação.
+**Antecedência máxima:** impede que alguém bloqueie salas com meses ou anos de antecedência, o que prejudica os demais usuários.
+
+**Detalhes:**
+
+- Valores sugeridos como ponto de partida: mínima de 15 a 30 minutos, máxima de 90 dias.
+- Deixe os valores configuráveis (application.properties), pois variam por organização.
+- Pode haver regras diferentes por perfil: administradores podem ignorar a antecedência mínima.
+- Esta regra complementa a RN08. A RN08 diz “não pode ser no passado”, e a RN11 diz “precisa estar dentro da janela aceitável”. Você pode unificá-las em uma só validação.
+
+## RN12: Duração máxima da reserva
+
+**Descrição:** O período de uma reserva não pode ultrapassar um limite máximo (ex.: 4 ou 8 horas).
+
+**Motivo:** Complementa a duração mínima (RN04). Evita que uma única pessoa monopolize uma sala por um dia inteiro ou mais.
+
+**Detalhes:**
+
+- Valor sugerido: 4 horas para salas de reunião, ou 8 horas para salas de uso geral.
+- Configurável, e possivelmente diferente por sala (um auditório pode permitir mais tempo que uma sala pequena). Nesse caso, o campo duracaoMaximaMinutos passa a fazer parte da entidade Sala.
+- Defina se reservas podem atravessar a meia-noite. Se não, adicione a regra “início e fim no mesmo dia”.
+- Para necessidades maiores (ex.: evento de dois dias), a saída é criar reservas separadas ou ter um fluxo de aprovação de administrador.
+- Junto com RN04, forma a regra completa: 30 min ≤ duração ≤ duração máxima.
