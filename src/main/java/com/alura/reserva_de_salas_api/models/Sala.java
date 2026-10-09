@@ -28,6 +28,10 @@ public class Sala {
     @Column(nullable = false)
     private String localizacao;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_sala",nullable = false)
+    private Status status;
+
     @OneToMany(mappedBy = "sala")
     private List<Reserva> reservas = new ArrayList<>();
 
