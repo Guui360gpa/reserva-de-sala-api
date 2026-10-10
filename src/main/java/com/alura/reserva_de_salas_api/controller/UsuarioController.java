@@ -21,31 +21,31 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<UsuarioResponse> cadastro(@RequestBody @Valid UsuarioRequest usuarioRequest){
-
+        return null;
     }
 
     @GetMapping
     public ResponseEntity<List<UsuarioResponse>> lista(){
-
+        return null;
     }
 
     @GetMapping("?email=")
     public ResponseEntity<UsuarioResponse> buscaPorEmail(@RequestParam(required = false) String email){
-
+        return null;
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> atualizaPorId(@PathVariable Long id, @RequestBody @Valid ){
-
+    public ResponseEntity<UsuarioResponse> atualizaPorId(@PathVariable Long id, @RequestBody @Valid UsuarioRequest usuarioRequest){
+        return null;
     }
 
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<UsuarioResponse> desativaPorId(@PathVariable Long id){
-
+        return null;
     }
 
     @GetMapping("/{id}/reservas")
     public ResponseEntity<List<ReservaResponse>> listaReservaPorId(@PathVariable Long id){
-
+        return null;
     }
 }
