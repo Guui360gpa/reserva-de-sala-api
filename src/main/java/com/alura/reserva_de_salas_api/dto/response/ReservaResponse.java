@@ -1,9 +1,10 @@
-package com.alura.reserva_de_salas_api.dto;
+package com.alura.reserva_de_salas_api.dto.response;
 
 import com.alura.reserva_de_salas_api.models.Reserva;
-import com.alura.reserva_de_salas_api.models.Sala;
 import com.alura.reserva_de_salas_api.models.StatusReserva;
-import com.alura.reserva_de_salas_api.models.Usuario;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDateTime;
 
@@ -28,5 +29,12 @@ public record ReservaResponse(
                 reserva.getQuantidadePessoas(),
                 reserva.getStatusReserva()
         );
+    }
+
+    public static record ReservaUpdateRequest(
+            @NotNull @Future LocalDateTime dataInicio,
+            @NotNull @Future LocalDateTime dataFim,
+            @NotNull @Positive Integer quantidadePessoas
+            ) {
     }
 }

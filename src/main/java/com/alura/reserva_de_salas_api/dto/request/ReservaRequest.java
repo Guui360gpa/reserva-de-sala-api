@@ -1,4 +1,4 @@
-package com.alura.reserva_de_salas_api.dto;
+package com.alura.reserva_de_salas_api.dto.request;
 
 import jakarta.validation.constraints.*;
 

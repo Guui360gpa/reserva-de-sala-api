@@ -1,9 +1,10 @@
 package com.alura.reserva_de_salas_api.controller;
 
 
-import com.alura.reserva_de_salas_api.dto.ReservaResponse;
-import com.alura.reserva_de_salas_api.dto.UsuarioRequest;
-import com.alura.reserva_de_salas_api.dto.UsuarioResponse;
+import com.alura.reserva_de_salas_api.dto.response.ReservaResponse;
+import com.alura.reserva_de_salas_api.dto.request.UsuarioRequest;
+import com.alura.reserva_de_salas_api.dto.response.UsuarioResponse;
+import com.alura.reserva_de_salas_api.dto.request.UsuarioUpdateRequest;
 import com.alura.reserva_de_salas_api.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class UsuarioController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> atualizaPorId(@PathVariable Long id, @RequestBody @Valid UsuarioRequest usuarioRequest){
+    public ResponseEntity<UsuarioResponse> atualizaPorId(@PathVariable Long id, @RequestBody @Valid UsuarioUpdateRequest usuarioUpdateRequest){
         return null;
     }
 

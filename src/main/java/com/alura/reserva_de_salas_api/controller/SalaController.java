@@ -1,8 +1,9 @@
 package com.alura.reserva_de_salas_api.controller;
 
-import com.alura.reserva_de_salas_api.dto.ReservaResponse;
-import com.alura.reserva_de_salas_api.dto.SalaRequest;
-import com.alura.reserva_de_salas_api.dto.SalaResponse;
+import com.alura.reserva_de_salas_api.dto.response.ReservaResponse;
+import com.alura.reserva_de_salas_api.dto.request.SalaRequest;
+import com.alura.reserva_de_salas_api.dto.response.SalaResponse;
+import com.alura.reserva_de_salas_api.dto.request.SalaUpdateRequest;
 import com.alura.reserva_de_salas_api.service.SalaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class SalaController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<SalaResponse> atualizaPorId(@PathVariable Long id, @RequestBody @Valid SalaRequest salaRequest){
+    public ResponseEntity<SalaResponse> atualizaPorId(@PathVariable Long id, @RequestBody @Valid SalaUpdateRequest salaUpdateRequest){
         return null;
     }
 

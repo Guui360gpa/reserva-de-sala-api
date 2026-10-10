@@ -1,4 +1,4 @@
-package com.alura.reserva_de_salas_api.dto;
+package com.alura.reserva_de_salas_api.dto.response;
 
 import com.alura.reserva_de_salas_api.models.Sala;
 import com.alura.reserva_de_salas_api.models.StatusSala;
