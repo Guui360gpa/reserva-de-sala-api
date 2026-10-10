@@ -1,6 +1,6 @@
 package com.alura.reserva_de_salas_api.models;
 
-public enum Status {
+public enum StatusSala {
 
     ATIVA,
     INATIVA

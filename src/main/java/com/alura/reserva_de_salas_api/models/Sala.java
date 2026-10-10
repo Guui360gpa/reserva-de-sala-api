@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,25 +18,27 @@ public class Sala {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String nome;
 
     @Column(nullable = false)
-    private int capacidade;
+    private Integer capacidade;
 
     @Column(nullable = false)
     private String localizacao;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status_sala",nullable = false)
-    private Status status;
+    private StatusSala status;
 
     @OneToMany(mappedBy = "sala")
     private List<Reserva> reservas = new ArrayList<>();
 
-    public Sala(String nome, int capacidade) {
+    public Sala(String nome, Integer capacidade, String localizacao) {
         this.nome = nome;
         this.capacidade = capacidade;
+        this.localizacao = localizacao;
+        this.status = StatusSala.ATIVA;
     }
 
     public Sala() {}
