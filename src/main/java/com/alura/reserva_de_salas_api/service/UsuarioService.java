@@ -3,11 +3,13 @@ package com.alura.reserva_de_salas_api.service;
 import com.alura.reserva_de_salas_api.dto.request.UsuarioRequest;
 import com.alura.reserva_de_salas_api.dto.response.UsuarioResponse;
 import com.alura.reserva_de_salas_api.exception.UsuarioExistenteException;
+import com.alura.reserva_de_salas_api.exception.UsuarioNaoEncontradoException;
 import com.alura.reserva_de_salas_api.models.StatusUsuario;
 import com.alura.reserva_de_salas_api.models.Usuario;
 import com.alura.reserva_de_salas_api.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -59,5 +61,13 @@ public class UsuarioService {
         return usuarios.stream()
                 .map(u -> UsuarioResponse.from(u))
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public UsuarioResponse buscar(String email){
+        Usuario usuarioEncontrado = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
+
+        return UsuarioResponse.from(usuarioEncontrado);
     }
 }
