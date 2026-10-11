@@ -3,10 +3,13 @@ package com.alura.reserva_de_salas_api.service;
 import com.alura.reserva_de_salas_api.dto.request.UsuarioRequest;
 import com.alura.reserva_de_salas_api.dto.response.UsuarioResponse;
 import com.alura.reserva_de_salas_api.exception.UsuarioExistenteException;
+import com.alura.reserva_de_salas_api.models.StatusUsuario;
 import com.alura.reserva_de_salas_api.models.Usuario;
 import com.alura.reserva_de_salas_api.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,5 +51,13 @@ public class UsuarioService {
             return null;
         }
         return cpf.replaceAll("\\D", "");   // remove pontos e traço
+    }
+
+    public List<UsuarioResponse> listar(){
+        List<Usuario> usuarios = usuarioRepository.findByStatus(StatusUsuario.ATIVO);
+
+        return usuarios.stream()
+                .map(u -> UsuarioResponse.from(u))
+                .toList();
     }
 }

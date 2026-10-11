@@ -31,6 +31,10 @@ public class Usuario {
     @Column(unique = true)
     private String cpf;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusUsuario statusUsuario;
+
     @OneToMany(mappedBy = "usuario")
     private List<Reserva> reservas = new ArrayList<>();
 
@@ -39,6 +43,7 @@ public class Usuario {
         this.dataNascimento = dataNascimento;
         this.email = email;
         this.cpf = cpf;
+        this.statusUsuario = StatusUsuario.ATIVO;
     }
 
     public Usuario(String name, LocalDate dataNascimento, String email) {
