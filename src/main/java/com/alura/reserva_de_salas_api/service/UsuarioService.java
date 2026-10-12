@@ -102,4 +102,14 @@ public class UsuarioService {
 
         return UsuarioResponse.from(usuarioRepository.save(usuario));
     }
+
+    @Transactional
+    public UsuarioResponse desativar(Long id){
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado"));
+
+        usuario.setStatusUsuario(StatusUsuario.INATIVO);
+
+        return UsuarioResponse.from(usuario);
+    }
 }
