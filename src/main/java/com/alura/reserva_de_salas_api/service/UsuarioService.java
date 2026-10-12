@@ -2,11 +2,14 @@ package com.alura.reserva_de_salas_api.service;
 
 import com.alura.reserva_de_salas_api.dto.request.UsuarioRequest;
 import com.alura.reserva_de_salas_api.dto.request.UsuarioUpdateRequest;
+import com.alura.reserva_de_salas_api.dto.response.ReservaResponse;
 import com.alura.reserva_de_salas_api.dto.response.UsuarioResponse;
 import com.alura.reserva_de_salas_api.exception.UsuarioExistenteException;
 import com.alura.reserva_de_salas_api.exception.UsuarioNaoEncontradoException;
+import com.alura.reserva_de_salas_api.models.Reserva;
 import com.alura.reserva_de_salas_api.models.StatusUsuario;
 import com.alura.reserva_de_salas_api.models.Usuario;
+import com.alura.reserva_de_salas_api.repository.ReservaRepository;
 import com.alura.reserva_de_salas_api.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,7 @@ import java.util.List;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final ReservaRepository reservaRepository;
 
     public UsuarioResponse cadastrar(UsuarioRequest dto){
 
@@ -111,5 +115,18 @@ public class UsuarioService {
         usuario.setStatusUsuario(StatusUsuario.INATIVO);
 
         return UsuarioResponse.from(usuario);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservaResponse> listarReservas(Long id){
+        if (!usuarioRepository.existsByIdAndStatusUsuario(id,StatusUsuario.ATIVO)){
+            throw new UsuarioNaoEncontradoException("Usuário não encontrado.");
+        }
+
+        List<Reserva> reservasUsuario = reservaRepository.findByUsuarioId(id);
+
+        return reservasUsuario.stream()
+                .map(ReservaResponse::from)
+                .toList();
     }
 }
