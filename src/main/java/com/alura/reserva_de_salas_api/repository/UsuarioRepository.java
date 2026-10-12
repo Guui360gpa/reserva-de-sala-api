@@ -17,4 +17,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario,Long> {
     List<Usuario> findByStatus(StatusUsuario status);
 
     Optional<Usuario> findByEmail(String email);
+
+    Optional<Usuario> findByEmailIgnoreCaseAndStatus(String email, StatusUsuario status);
+
+    boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);
+
+    boolean existsByCpfAndIdNot(String cpf, Long id);
 }

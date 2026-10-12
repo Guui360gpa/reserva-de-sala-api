@@ -35,8 +35,8 @@ public class UsuarioController {
         return null;
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<UsuarioResponse> atualizaPorId(@PathVariable Long id, @RequestBody @Valid UsuarioUpdateRequest usuarioUpdateRequest){
+    @PatchMapping("?email=")
+    public ResponseEntity<UsuarioResponse> atualizaPorEmail(@RequestParam(required = false) String email , @RequestBody @Valid UsuarioUpdateRequest usuarioUpdateRequest){
         return null;
     }
 

@@ -1,6 +1,7 @@
 package com.alura.reserva_de_salas_api.service;
 
 import com.alura.reserva_de_salas_api.dto.request.UsuarioRequest;
+import com.alura.reserva_de_salas_api.dto.request.UsuarioUpdateRequest;
 import com.alura.reserva_de_salas_api.dto.response.UsuarioResponse;
 import com.alura.reserva_de_salas_api.exception.UsuarioExistenteException;
 import com.alura.reserva_de_salas_api.exception.UsuarioNaoEncontradoException;
@@ -65,9 +66,40 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public UsuarioResponse buscar(String email){
-        Usuario usuarioEncontrado = usuarioRepository.findByEmail(email)
+        Usuario usuarioEncontrado = usuarioRepository.findByEmail(email.trim())
                 .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
 
         return UsuarioResponse.from(usuarioEncontrado);
+    }
+
+    public UsuarioResponse atualizar(String email, UsuarioUpdateRequest dto){
+        Usuario usuario = usuarioRepository.findByEmailIgnoreCaseAndStatus(email.trim(), StatusUsuario.ATIVO)
+                .orElseThrow(() -> new UsuarioNaoEncontradoException("Usuário não encontrado."));
+
+        if (dto.nome() != null){
+            usuario.setName(dto.nome());
+        }
+
+        if (dto.dataNascimento() != null){
+            usuario.setDataNascimento(dto.dataNascimento());
+        }
+
+        if (dto.email() != null){
+            String novoEmail = dto.email().trim().toLowerCase();
+            if (usuarioRepository.existsByEmailIgnoreCaseAndIdNot(novoEmail,usuario.getId())){
+                throw new UsuarioExistenteException("Email já cadastrado.");
+            }
+            usuario.setEmail(dto.email());
+        }
+
+        if (dto.cpf() != null){
+            String novoCpf = normalizarCpf(dto.cpf());
+            if (novoCpf != null && usuarioRepository.existsByCpfAndIdNot(novoCpf, usuario.getId())){
+                throw new UsuarioExistenteException("CPF já cadastrado");
+            }
+            usuario.setCpf(dto.cpf());
+        }
+
+        return UsuarioResponse.from(usuarioRepository.save(usuario));
     }
 }
