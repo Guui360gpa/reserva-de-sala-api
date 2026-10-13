@@ -64,7 +64,7 @@ public class UsuarioService {
         List<Usuario> usuarios = usuarioRepository.findByStatus(StatusUsuario.ATIVO);
 
         return usuarios.stream()
-                .map(u -> UsuarioResponse.from(u))
+                .map(UsuarioResponse::from)
                 .toList();
     }
 
