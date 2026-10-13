@@ -31,8 +31,8 @@ public class SalaController {
         return null;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<SalaResponse> buscaPorId(@PathVariable Long id){
+    @GetMapping("?nome=")
+    public ResponseEntity<SalaResponse> buscaPorId(@RequestParam String nome){
         return null;
     }
 

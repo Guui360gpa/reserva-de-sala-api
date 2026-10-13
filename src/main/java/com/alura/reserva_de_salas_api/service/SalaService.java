@@ -2,12 +2,10 @@ package com.alura.reserva_de_salas_api.service;
 
 import com.alura.reserva_de_salas_api.dto.request.SalaRequest;
 import com.alura.reserva_de_salas_api.dto.response.SalaResponse;
-import com.alura.reserva_de_salas_api.dto.response.UsuarioResponse;
 import com.alura.reserva_de_salas_api.exception.SalaExistenteException;
+import com.alura.reserva_de_salas_api.exception.SalaNaoEncontradaException;
 import com.alura.reserva_de_salas_api.models.Sala;
 import com.alura.reserva_de_salas_api.models.StatusSala;
-import com.alura.reserva_de_salas_api.models.StatusUsuario;
-import com.alura.reserva_de_salas_api.models.Usuario;
 import com.alura.reserva_de_salas_api.repository.SalaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,6 +38,13 @@ public class SalaService {
         return salas.stream()
                 .map(SalaResponse::from)
                 .toList();
+    }
+
+    public SalaResponse buscar(String nome){
+        Sala salaEncontrada = salaRepository.findByNome(nome)
+                .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
+
+        return SalaResponse.from(salaEncontrada);
     }
 
 }
