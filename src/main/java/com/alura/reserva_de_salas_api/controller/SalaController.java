@@ -32,7 +32,7 @@ public class SalaController {
     }
 
     @GetMapping("?nome=")
-    public ResponseEntity<SalaResponse> buscaPorId(@RequestParam String nome){
+    public ResponseEntity<SalaResponse> buscaPorNome(@RequestParam String nome){
         return null;
     }
 

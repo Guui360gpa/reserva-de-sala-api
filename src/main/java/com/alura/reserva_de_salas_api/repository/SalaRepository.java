@@ -15,5 +15,7 @@ public interface SalaRepository extends JpaRepository<Sala, Long> {
 
     List<Sala> findByStatus(StatusSala status);
 
-    Optional<Sala> findByNome(String nome);
+    Optional<Sala> findByNomeIgnoreCase(String nome);
+
+    Optional<Sala> findByIdIgnoreCaseAndStatus(Long id, StatusSala statusSala);
 }

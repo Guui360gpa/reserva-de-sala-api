@@ -1,6 +1,7 @@
 package com.alura.reserva_de_salas_api.service;
 
 import com.alura.reserva_de_salas_api.dto.request.SalaRequest;
+import com.alura.reserva_de_salas_api.dto.request.SalaUpdateRequest;
 import com.alura.reserva_de_salas_api.dto.response.SalaResponse;
 import com.alura.reserva_de_salas_api.exception.SalaExistenteException;
 import com.alura.reserva_de_salas_api.exception.SalaNaoEncontradaException;
@@ -41,10 +42,32 @@ public class SalaService {
     }
 
     public SalaResponse buscar(String nome){
-        Sala salaEncontrada = salaRepository.findByNome(nome)
+        Sala salaEncontrada = salaRepository.findByNomeIgnoreCase(nome.trim())
                 .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
 
         return SalaResponse.from(salaEncontrada);
+    }
+
+    public SalaResponse atualizar(Long id, SalaUpdateRequest dto){
+        Sala salaEncontrada = salaRepository.findByIdIgnoreCaseAndStatus(id,StatusSala.ATIVA)
+                .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
+
+        if (dto.nome() != null){
+            if (salaRepository.existsByNomeIgnoreCase(dto.nome())){
+                throw new SalaExistenteException("A sala " + dto.nome()  + " já existe.");
+            }
+            salaEncontrada.setNome(dto.nome());
+        }
+
+        if (dto.capacidade() != null){
+            salaEncontrada.setCapacidade(dto.capacidade());
+        }
+
+        if (dto.localizacao() != null){
+            salaEncontrada.setLocalizacao(dto.localizacao());
+        }
+
+        return SalaResponse.from(salaRepository.save(salaEncontrada));
     }
 
 }
