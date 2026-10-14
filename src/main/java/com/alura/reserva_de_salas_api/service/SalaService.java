@@ -7,6 +7,7 @@ import com.alura.reserva_de_salas_api.exception.SalaExistenteException;
 import com.alura.reserva_de_salas_api.exception.SalaNaoEncontradaException;
 import com.alura.reserva_de_salas_api.models.Sala;
 import com.alura.reserva_de_salas_api.models.StatusSala;
+import com.alura.reserva_de_salas_api.repository.SalaJaInativaException;
 import com.alura.reserva_de_salas_api.repository.SalaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -68,6 +69,18 @@ public class SalaService {
         }
 
         return SalaResponse.from(salaRepository.save(salaEncontrada));
+    }
+
+    public SalaResponse desativar(Long id) {
+        Sala sala = salaRepository.findById(id)
+                .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
+
+        if (sala.getStatus() == StatusSala.INATIVA) {
+            throw new SalaJaInativaException("A sala " + sala.getNome() + " já está inativa.");
+        }
+
+        sala.setStatus(StatusSala.INATIVA);
+        return SalaResponse.from(salaRepository.save(sala));
     }
 
 }
