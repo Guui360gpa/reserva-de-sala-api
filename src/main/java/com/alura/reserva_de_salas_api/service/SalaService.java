@@ -4,10 +4,11 @@ import com.alura.reserva_de_salas_api.dto.request.SalaRequest;
 import com.alura.reserva_de_salas_api.dto.request.SalaUpdateRequest;
 import com.alura.reserva_de_salas_api.dto.response.SalaResponse;
 import com.alura.reserva_de_salas_api.exception.SalaExistenteException;
+import com.alura.reserva_de_salas_api.exception.SalaJaAtivaException;
 import com.alura.reserva_de_salas_api.exception.SalaNaoEncontradaException;
 import com.alura.reserva_de_salas_api.models.Sala;
 import com.alura.reserva_de_salas_api.models.StatusSala;
-import com.alura.reserva_de_salas_api.repository.SalaJaInativaException;
+import com.alura.reserva_de_salas_api.exception.SalaJaInativaException;
 import com.alura.reserva_de_salas_api.repository.SalaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -80,6 +81,18 @@ public class SalaService {
         }
 
         sala.setStatus(StatusSala.INATIVA);
+        return SalaResponse.from(salaRepository.save(sala));
+    }
+
+    public SalaResponse ativar(Long id) {
+        Sala sala = salaRepository.findById(id)
+                .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
+
+        if (sala.getStatus() == StatusSala.ATIVA) {
+            throw new SalaJaAtivaException("A sala " + sala.getNome() + " já está ativa.");
+        }
+
+        sala.setStatus(StatusSala.ATIVA);
         return SalaResponse.from(salaRepository.save(sala));
     }
 
