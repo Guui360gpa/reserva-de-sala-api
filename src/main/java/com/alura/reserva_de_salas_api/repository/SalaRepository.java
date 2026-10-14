@@ -18,4 +18,6 @@ public interface SalaRepository extends JpaRepository<Sala, Long> {
     Optional<Sala> findByNomeIgnoreCase(String nome);
 
     Optional<Sala> findByIdIgnoreCaseAndStatus(Long id, StatusSala statusSala);
+
+    boolean existsByIdAndStatusSala(Long id, StatusSala statusSala);
 }

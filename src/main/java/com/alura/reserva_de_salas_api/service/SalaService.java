@@ -2,18 +2,15 @@ package com.alura.reserva_de_salas_api.service;
 
 import com.alura.reserva_de_salas_api.dto.request.SalaRequest;
 import com.alura.reserva_de_salas_api.dto.request.SalaUpdateRequest;
+import com.alura.reserva_de_salas_api.dto.response.ReservaResponse;
 import com.alura.reserva_de_salas_api.dto.response.SalaResponse;
-import com.alura.reserva_de_salas_api.exception.SalaExistenteException;
-import com.alura.reserva_de_salas_api.exception.SalaJaAtivaException;
-import com.alura.reserva_de_salas_api.exception.SalaNaoEncontradaException;
-import com.alura.reserva_de_salas_api.models.Reserva;
-import com.alura.reserva_de_salas_api.models.Sala;
-import com.alura.reserva_de_salas_api.models.StatusReserva;
-import com.alura.reserva_de_salas_api.models.StatusSala;
-import com.alura.reserva_de_salas_api.exception.SalaJaInativaException;
+import com.alura.reserva_de_salas_api.exception.*;
+import com.alura.reserva_de_salas_api.models.*;
+import com.alura.reserva_de_salas_api.repository.ReservaRepository;
 import com.alura.reserva_de_salas_api.repository.SalaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,6 +23,7 @@ import static java.util.stream.Collectors.toList;
 public class SalaService {
 
     private final SalaRepository salaRepository;
+    private final ReservaRepository reservaRepository;
 
     public SalaResponse cadastrar(SalaRequest dto){
         if (salaRepository.existsByNomeIgnoreCase(dto.nome().trim())){
@@ -115,6 +113,20 @@ public class SalaService {
 
         return salasDisponiveis.stream()
                 .map(SalaResponse::from).toList();
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<ReservaResponse> listarReservas(Long id){
+        if (!salaRepository.existsByIdAndStatusSala(id, StatusSala.ATIVA)){
+            throw new SalaNaoEncontradaException("Sala não encontrada.");
+        }
+
+        List<Reserva> reservasSala = reservaRepository.findBySalaId(id);
+
+        return reservasSala.stream()
+                .map(ReservaResponse::from)
+                .toList();
     }
 
 }
