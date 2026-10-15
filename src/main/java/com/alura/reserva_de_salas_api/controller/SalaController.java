@@ -4,6 +4,7 @@ import com.alura.reserva_de_salas_api.dto.response.ReservaResponse;
 import com.alura.reserva_de_salas_api.dto.request.SalaRequest;
 import com.alura.reserva_de_salas_api.dto.response.SalaResponse;
 import com.alura.reserva_de_salas_api.dto.request.SalaUpdateRequest;
+import com.alura.reserva_de_salas_api.models.Sala;
 import com.alura.reserva_de_salas_api.service.SalaService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -31,7 +32,8 @@ public class SalaController {
 
     @GetMapping
     public ResponseEntity<List<SalaResponse>> lista(){
-        return null;
+        List<SalaResponse> salasResponse = salaService.listar();
+        return ResponseEntity.ok(salasResponse);
     }
 
     @GetMapping("?nome=")
