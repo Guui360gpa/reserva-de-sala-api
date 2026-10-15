@@ -3,6 +3,7 @@ package com.alura.reserva_de_salas_api.service;
 import com.alura.reserva_de_salas_api.dto.request.ReservaRequest;
 import com.alura.reserva_de_salas_api.dto.response.ReservaResponse;
 import com.alura.reserva_de_salas_api.exception.PeriodoInvalidoException;
+import com.alura.reserva_de_salas_api.exception.ReservaNaoEncontradaException;
 import com.alura.reserva_de_salas_api.exception.SalaNaoEncontradaException;
 import com.alura.reserva_de_salas_api.exception.UsuarioNaoEncontradoException;
 import com.alura.reserva_de_salas_api.models.*;
@@ -75,5 +76,12 @@ public class ReservaService {
                 .stream()
                 .map(ReservaResponse::from)
                 .toList();
+    }
+
+    public ReservaResponse buscar(Long id){
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new ReservaNaoEncontradaException("Reserva não encontrada"));
+
+        return ReservaResponse.from(reserva);
     }
 }
