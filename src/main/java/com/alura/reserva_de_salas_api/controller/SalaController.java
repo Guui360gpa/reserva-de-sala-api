@@ -4,7 +4,6 @@ import com.alura.reserva_de_salas_api.dto.response.ReservaResponse;
 import com.alura.reserva_de_salas_api.dto.request.SalaRequest;
 import com.alura.reserva_de_salas_api.dto.response.SalaResponse;
 import com.alura.reserva_de_salas_api.dto.request.SalaUpdateRequest;
-import com.alura.reserva_de_salas_api.models.Sala;
 import com.alura.reserva_de_salas_api.service.SalaService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -20,6 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/salas")
 @RequiredArgsConstructor
+@Validated
 public class SalaController {
 
     private final SalaService salaService;
@@ -36,7 +37,7 @@ public class SalaController {
         return ResponseEntity.ok(salasResponse);
     }
 
-    @GetMapping("?nome=")
+    @GetMapping("/busca")
     public ResponseEntity<SalaResponse> buscaPorNome(@RequestParam String nome){
         SalaResponse salaResponse = salaService.buscar(nome);
         return ResponseEntity.ok(salaResponse);
@@ -69,7 +70,7 @@ public class SalaController {
         return ResponseEntity.ok(salaService.listarDisponiveis(inicio, fim, capacidade));
     }
 
-    @GetMapping("{id}/reservas")
+    @GetMapping("/{id}/reservas")
     public ResponseEntity<List<ReservaResponse>> listaReservasPorId(@PathVariable Long id){
         List<ReservaResponse> reservasResponse = salaService.listarReservas(id);
         return ResponseEntity.ok(reservasResponse);
