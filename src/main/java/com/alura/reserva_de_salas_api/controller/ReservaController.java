@@ -5,6 +5,7 @@ import com.alura.reserva_de_salas_api.dto.response.ReservaResponse;
 import com.alura.reserva_de_salas_api.service.ReservaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,8 @@ public class ReservaController {
 
     @PostMapping
     public ResponseEntity<ReservaResponse> cria(@RequestBody @Valid ReservaRequest reservaRequest){
-        return null;
+        ReservaResponse reservaResponse = reservaService.criar(reservaRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(reservaResponse);
     }
 
     @GetMapping
