@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class SalaService {
     private final SalaRepository salaRepository;
     private final ReservaRepository reservaRepository;
 
+    @Transactional
     public SalaResponse cadastrar(SalaRequest dto){
         if (salaRepository.existsByNomeIgnoreCase(dto.nome().trim())){
             throw new SalaExistenteException("A sala " + dto.nome()  + " já existe.");
@@ -37,6 +39,7 @@ public class SalaService {
         return SalaResponse.from(salaSalva);
     }
 
+    @Transactional
     public List<SalaResponse> listar(){
         List<Sala> salas = salaRepository.findByStatus(StatusSala.ATIVA);
 
@@ -45,6 +48,7 @@ public class SalaService {
                 .toList();
     }
 
+    @Transactional
     public SalaResponse buscar(String nome){
         Sala salaEncontrada = salaRepository.findByNomeIgnoreCase(nome.trim())
                 .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
@@ -52,18 +56,23 @@ public class SalaService {
         return SalaResponse.from(salaEncontrada);
     }
 
+    @Transactional
     public SalaResponse atualizar(Long id, SalaUpdateRequest dto){
         Sala salaEncontrada = salaRepository.findByIdIgnoreCaseAndStatus(id,StatusSala.ATIVA)
                 .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
 
         if (dto.nome() != null){
-            if (salaRepository.existsByNomeIgnoreCase(dto.nome())){
+            if (salaRepository.existsByNomeIgnoreCaseAndIdNot(dto.nome())){
                 throw new SalaExistenteException("A sala " + dto.nome()  + " já existe.");
             }
             salaEncontrada.setNome(dto.nome());
         }
 
-        if (dto.capacidade() != null){
+        if (dto.capacidade() != null) {
+            if (dto.capacidade() < salaEncontrada.getCapacidade()
+                    && reservaRepository.existeReservaFuturaAcimaDe(id, dto.capacidade(), LocalDateTime.now())) {
+                throw new CapacidadeImcompativelException("Existem reservas futuras que excedem a nova capacidade.");
+            }
             salaEncontrada.setCapacidade(dto.capacidade());
         }
 
@@ -74,6 +83,7 @@ public class SalaService {
         return SalaResponse.from(salaRepository.save(salaEncontrada));
     }
 
+    @Transactional
     public SalaResponse desativar(Long id) {
         Sala sala = salaRepository.findById(id)
                 .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
@@ -86,6 +96,7 @@ public class SalaService {
         return SalaResponse.from(salaRepository.save(sala));
     }
 
+    @Transactional
     public SalaResponse ativar(Long id) {
         Sala sala = salaRepository.findById(id)
                 .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
@@ -98,19 +109,14 @@ public class SalaService {
         return SalaResponse.from(salaRepository.save(sala));
     }
 
-    public List<SalaResponse> listarDisponiveis(){
-        List<Sala> salas = salaRepository.findByStatus(StatusSala.ATIVA);
-        List<Sala> salasDisponiveis = new ArrayList<>();
-
-        for (Sala s : salas ){
-            Reserva reserva = s.getReservas().getLast();
-            if (reserva.getStatusReserva() != StatusReserva.EM_ANDAMENTO){
-                salasDisponiveis.add(s);
-            }
+    @Transactional(readOnly = true)
+    public List<SalaResponse> listarDisponiveis(LocalDateTime inicio, LocalDateTime fim, Integer capacidade){
+        if (!fim.isAfter(inicio)){
+            throw new PeriodoInvalidoException("A data de fim deve ser posterior á data de início");
         }
-
-        return salasDisponiveis.stream()
-                .map(SalaResponse::from).toList();
+        return salaRepository.buscarDisponiveis(capacidade,inicio,fim).stream()
+                .map(SalaResponse::from)
+                .toList();
     }
 
 

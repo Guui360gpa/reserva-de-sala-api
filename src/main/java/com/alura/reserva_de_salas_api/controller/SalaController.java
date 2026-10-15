@@ -6,10 +6,14 @@ import com.alura.reserva_de_salas_api.dto.response.SalaResponse;
 import com.alura.reserva_de_salas_api.dto.request.SalaUpdateRequest;
 import com.alura.reserva_de_salas_api.service.SalaService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -55,9 +59,12 @@ public class SalaController {
     }
 
     @GetMapping("/disponiveis")
-    public ResponseEntity<List<SalaResponse>> listarDisponiveis() {
-        List<SalaResponse> salasResponse = salaService.listarDisponiveis();
-        return ResponseEntity.ok(salasResponse);
+    public ResponseEntity<List<SalaResponse>> listarDisponiveis(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim,
+            @RequestParam(defaultValue = "1") @Min(1) Integer capacidade) {
+
+        return ResponseEntity.ok(salaService.listarDisponiveis(inicio, fim, capacidade));
     }
 
     @GetMapping("{id}/reservas")
