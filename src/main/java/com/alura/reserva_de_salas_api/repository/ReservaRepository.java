@@ -1,11 +1,13 @@
 package com.alura.reserva_de_salas_api.repository;
 
 import com.alura.reserva_de_salas_api.models.Reserva;
+import com.alura.reserva_de_salas_api.models.StatusReserva;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
@@ -24,5 +26,31 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     boolean existeReservaFuturaAcimaDe(@Param("salaId") Long salaId,
                                        @Param("novaCapacidade") Integer novaCapacidade,
                                        @Param("agora") LocalDateTime agora);
+
+    // Reservas do dia: ATIVA ou EM_ANDAMENTO com início dentro do intervalo
+    @Query("""
+        SELECT r FROM Reserva r
+        JOIN FETCH r.usuario
+        JOIN FETCH r.sala
+        WHERE r.statusReserva IN :status
+          AND r.dataInicio >= :inicioDia
+          AND r.dataInicio < :fimDia
+        ORDER BY r.dataInicio ASC
+        """)
+    List<Reserva> listarDoDia(@Param("status") Collection<StatusReserva> status,
+                              @Param("inicioDia") LocalDateTime inicioDia,
+                              @Param("fimDia") LocalDateTime fimDia);
+
+    // Em andamento: já começou e ainda não terminou
+    @Query("""
+        SELECT r FROM Reserva r
+        JOIN FETCH r.usuario
+        JOIN FETCH r.sala
+        WHERE r.statusReserva = com.alura.reserva_de_salas_api.models.StatusReserva.ATIVA
+          AND r.dataInicio <= :agora
+          AND r.dataFim > :agora
+        ORDER BY r.dataInicio ASC
+        """)
+    List<Reserva> listarEmAndamento(@Param("agora") LocalDateTime agora);
 
 }

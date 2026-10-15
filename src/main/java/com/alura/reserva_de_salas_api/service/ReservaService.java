@@ -10,8 +10,15 @@ import com.alura.reserva_de_salas_api.repository.ReservaRepository;
 import com.alura.reserva_de_salas_api.repository.SalaRepository;
 import com.alura.reserva_de_salas_api.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +27,13 @@ public class ReservaService {
     private final ReservaRepository reservaRepository;
     private final UsuarioRepository usuarioRepository;
     private final SalaRepository salaRepository;
+    private final Clock clock = clock();
+
+
+    @Bean
+    public Clock clock() {
+        return Clock.system(ZoneId.of("America/Sao_Paulo"));
+    }
 
     @Transactional
     public ReservaResponse criar(ReservaRequest dto){
@@ -42,5 +56,23 @@ public class ReservaService {
         );
 
         return ReservaResponse.from(reserva);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservaResponse> listarReservasDoDia(){
+        LocalDate hoje = LocalDate.now(clock);
+        LocalDateTime inicioDia = hoje.atStartOfDay();
+        LocalDateTime fimDia = hoje.plusDays(1).atStartOfDay();
+
+        return reservaRepository.listarDoDia(List.of(StatusReserva.ATIVA, StatusReserva.EM_ANDAMENTO), inicioDia, fimDia).stream()
+                .map(ReservaResponse::from)
+                .toList();
+    }
+
+    public List<ReservaResponse> listarReservasEmAndamento(){
+        return reservaRepository.listarEmAndamento(LocalDateTime.now(clock))
+                .stream()
+                .map(ReservaResponse::from)
+                .toList();
     }
 }

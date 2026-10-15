@@ -24,8 +24,13 @@ public class ReservaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(reservaResponse);
     }
 
-    @GetMapping
-    public ResponseEntity<List<ReservaResponse>> lista(){
+    @GetMapping("/dia")
+    public ResponseEntity<List<ReservaResponse>> listaDoDia(){
+        return null;
+    }
+
+    @GetMapping("/em-andamento")
+    public ResponseEntity<List<ReservaResponse>> listaEmAndamento(){
         return null;
     }
 
