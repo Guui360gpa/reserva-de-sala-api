@@ -2,10 +2,7 @@ package com.alura.reserva_de_salas_api.service;
 
 import com.alura.reserva_de_salas_api.dto.request.ReservaRequest;
 import com.alura.reserva_de_salas_api.dto.response.ReservaResponse;
-import com.alura.reserva_de_salas_api.exception.PeriodoInvalidoException;
-import com.alura.reserva_de_salas_api.exception.ReservaNaoEncontradaException;
-import com.alura.reserva_de_salas_api.exception.SalaNaoEncontradaException;
-import com.alura.reserva_de_salas_api.exception.UsuarioNaoEncontradoException;
+import com.alura.reserva_de_salas_api.exception.*;
 import com.alura.reserva_de_salas_api.models.*;
 import com.alura.reserva_de_salas_api.repository.ReservaRepository;
 import com.alura.reserva_de_salas_api.repository.SalaRepository;
@@ -56,7 +53,7 @@ public class ReservaService {
                 dto.quantidadePessoas()
         );
 
-        return ReservaResponse.from(reserva);
+        return ReservaResponse.from(reservaRepository.save(reserva));
     }
 
     @Transactional(readOnly = true)
@@ -78,10 +75,24 @@ public class ReservaService {
                 .toList();
     }
 
+    @Transactional
     public ReservaResponse buscar(Long id){
         Reserva reserva = reservaRepository.findById(id)
                 .orElseThrow(() -> new ReservaNaoEncontradaException("Reserva não encontrada"));
 
         return ReservaResponse.from(reserva);
+    }
+
+    public ReservaResponse cancelar(Long id){
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new ReservaNaoEncontradaException("Reserva não encontrada"));
+
+        if (reserva.getStatusReserva() == StatusReserva.CANCELADA){
+            throw new ReservaJaCanceladaException("Reserva já cancelada.");
+        }
+
+        reserva.setStatusReserva(StatusReserva.CANCELADA);
+
+        return ReservaResponse.from(reservaRepository.save(reserva));
     }
 }
