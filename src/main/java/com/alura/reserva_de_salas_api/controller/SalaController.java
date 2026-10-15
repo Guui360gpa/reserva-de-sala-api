@@ -7,11 +7,9 @@ import com.alura.reserva_de_salas_api.dto.request.SalaUpdateRequest;
 import com.alura.reserva_de_salas_api.service.SalaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -23,7 +21,8 @@ public class SalaController {
 
     @PostMapping
     public ResponseEntity<SalaResponse> cadastro(@RequestBody @Valid SalaRequest salaRequest){
-        return null;
+        SalaResponse salaResponse = salaService.cadastrar(salaRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(salaResponse);
     }
 
     @GetMapping
@@ -33,36 +32,38 @@ public class SalaController {
 
     @GetMapping("?nome=")
     public ResponseEntity<SalaResponse> buscaPorNome(@RequestParam String nome){
-        return null;
+        SalaResponse salaResponse = salaService.buscar(nome);
+        return ResponseEntity.ok(salaResponse);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<SalaResponse> atualizaPorId(@PathVariable Long id, @RequestBody @Valid SalaUpdateRequest salaUpdateRequest){
-        return null;
+        SalaResponse salaResponse = salaService.atualizar(id,salaUpdateRequest);
+        return ResponseEntity.ok(salaResponse);
     }
 
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<SalaResponse> desativaPorId(@PathVariable Long id){
-        return null;
+        SalaResponse salaResponse = salaService.desativar(id);
+        return ResponseEntity.ok(salaResponse);
     }
 
     @PatchMapping("/{id}/ativar")
     public ResponseEntity<SalaResponse> ativaPorId(@PathVariable Long id){
-        return null;
+        SalaResponse salaResponse = salaService.ativar(id);
+        return ResponseEntity.ok(salaResponse);
     }
 
     @GetMapping("/disponiveis")
-    public ResponseEntity<List<SalaResponse>> listarDisponiveis(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inicio,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fim,
-            @RequestParam(required = false, defaultValue = "1") Integer capacidade) {
-
-        return null;
+    public ResponseEntity<List<SalaResponse>> listarDisponiveis() {
+        List<SalaResponse> salasResponse = salaService.listarDisponiveis();
+        return ResponseEntity.ok(salasResponse);
     }
 
     @GetMapping("{id}/reservas")
     public ResponseEntity<List<ReservaResponse>> listaReservasPorId(@PathVariable Long id){
-        return null;
+        List<ReservaResponse> reservasResponse = salaService.listarReservas(id);
+        return ResponseEntity.ok(reservasResponse);
     }
 
 
