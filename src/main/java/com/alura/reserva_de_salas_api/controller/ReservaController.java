@@ -26,12 +26,14 @@ public class ReservaController {
 
     @GetMapping("/dia")
     public ResponseEntity<List<ReservaResponse>> listaDoDia(){
-        return null;
+        List<ReservaResponse> reservasResponse = reservaService.listarReservasDoDia();
+        return ResponseEntity.ok(reservasResponse);
     }
 
     @GetMapping("/em-andamento")
     public ResponseEntity<List<ReservaResponse>> listaEmAndamento(){
-        return null;
+        List<ReservaResponse> reservasResponse = reservaService.listarReservasEmAndamento();
+        return ResponseEntity.ok(reservasResponse);
     }
 
     @GetMapping("/{id}")

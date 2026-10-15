@@ -69,6 +69,7 @@ public class ReservaService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<ReservaResponse> listarReservasEmAndamento(){
         return reservaRepository.listarEmAndamento(LocalDateTime.now(clock))
                 .stream()
