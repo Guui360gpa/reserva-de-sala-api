@@ -50,7 +50,7 @@ public class SalaService {
 
     @Transactional
     public SalaResponse buscar(String nome){
-        Sala salaEncontrada = salaRepository.findByNomeIgnoreCase(nome.trim())
+        Sala salaEncontrada = salaRepository.findByNomeIgnoreCaseAndStatus(nome.trim(), StatusSala.ATIVA)
                 .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
 
         return SalaResponse.from(salaEncontrada);
