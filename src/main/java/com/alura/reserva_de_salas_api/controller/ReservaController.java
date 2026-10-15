@@ -38,7 +38,8 @@ public class ReservaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ReservaResponse> buscaPorId(@PathVariable Long id){
-        return null;
+        ReservaResponse reservaResponse = reservaService.buscar(id);
+        return ResponseEntity.ok(reservaResponse);
     }
 
     @PutMapping("/{id}")
