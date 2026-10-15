@@ -50,8 +50,9 @@ public class ReservaController {
     }
 
     @PatchMapping("/{id}/cancelar")
-    public ResponseEntity<Void> cancelar(@PathVariable Long id) {
-        return null;
+    public ResponseEntity<ReservaResponse> cancelar(@PathVariable Long id) {
+        ReservaResponse reservaResponse = reservaService.cancelar(id);
+        return ResponseEntity.ok(reservaResponse);
     }
 
 
