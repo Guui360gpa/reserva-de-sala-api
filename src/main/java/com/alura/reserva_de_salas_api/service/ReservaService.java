@@ -7,6 +7,7 @@ import com.alura.reserva_de_salas_api.models.*;
 import com.alura.reserva_de_salas_api.repository.ReservaRepository;
 import com.alura.reserva_de_salas_api.repository.SalaRepository;
 import com.alura.reserva_de_salas_api.repository.UsuarioRepository;
+import com.alura.reserva_de_salas_api.validation.ReservaValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class ReservaService {
     private final ReservaRepository reservaRepository;
     private final UsuarioRepository usuarioRepository;
     private final SalaRepository salaRepository;
+    private final ReservaValidator validator;
     private final Clock clock;
 
 
@@ -33,9 +35,9 @@ public class ReservaService {
         Sala sala = salaRepository.findByNomeIgnoreCaseAndStatus(dto.salaNome(), StatusSala.ATIVA)
                 .orElseThrow(() -> new SalaNaoEncontradaException("Sala não encontrada."));
 
-        validarPeriodo(dto.dataInicio(),dto.dataFim());
-        validarAntecedencia(dto.dataInicio());
-        validarOcupacao(sala,dto.quantidadePessoas());
+        validator.validarPeriodo(dto.dataInicio(),dto.dataFim());
+        validator.validarAntecedencia(dto.dataInicio());
+        validator.validarOcupacao(sala,dto.quantidadePessoas());
 
         if (reservaRepository.existeConflito(sala.getId(), dto.dataInicio(), dto.dataFim())){
             throw new ConflitoDeHorarioException("A sala já está reservada neste horário.");
@@ -51,39 +53,6 @@ public class ReservaService {
 
         return ReservaResponse.from(reservaRepository.save(reserva));
     }
-
-    private void validarPeriodo(LocalDateTime inicio, LocalDateTime fim){
-        if (!fim.isAfter(inicio)){
-            throw new PeriodoInvalidoException("A data de fim deve ser posterior à data de inicio");
-        }
-        Duration duration = Duration.between(inicio,fim);
-        if (duration.compareTo(Duration.ofMinutes(30)) < 0){
-            throw new DuracaoMinimaException("A reserva deve ter no mínimo 30 min");
-        }
-        if (duration.compareTo(Duration.ofHours(4)) > 0){
-            throw new DuracaoMaximaException("A reserva deve ter no máximo 4 horas");
-        }
-    }
-
-    private void validarAntecedencia(LocalDateTime inicio) {
-        LocalDateTime now = LocalDateTime.now(clock);
-        if (inicio.isBefore(now.plusMinutes(30))){
-            throw new AntecedenciaInvalidaException("A reserva exige antecedência mínima de 30 min.");
-        }
-        if (inicio.isAfter(now.plusDays(90))){
-            throw new AntecedenciaInvalidaException("A reserva só pode ser feita com até 90 dias de antecedência.");
-        }
-    }
-
-    private void validarOcupacao (Sala sala, int pessoas) {
-        if (pessoas > sala.getCapacidade()) {
-            throw new CapacidadeExcedidaException("A quantidade de pessoas excede a capacidade da sala.");
-        }
-        int minimo = sala.capacidadeMinima();
-        if (pessoas < minimo) {
-            throw new OcupacaoMinimaNaoAtendidaException("A sala exige no mínimo " + minimo + " pessoas.");
-        }
-     }
 
     @Transactional(readOnly = true)
     public List<ReservaResponse> listarReservasDoDia(){

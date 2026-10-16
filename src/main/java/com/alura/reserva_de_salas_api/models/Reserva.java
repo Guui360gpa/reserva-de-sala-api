@@ -61,6 +61,6 @@ public class Reserva {
         if (!ehDono && !solicitante.isAdmin()) {
             throw new AcessoNegadoException("Apenas o criador ou um administrador pode cancelar a reserva.");
         }
-        statusReserva = StatusReserva.CANCELADA
+        statusReserva = StatusReserva.CANCELADA;
     }
 }
