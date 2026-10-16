@@ -50,9 +50,11 @@ public class ReservaController {
     }
 
     @PatchMapping("/{id}/cancelar")
-    public ResponseEntity<ReservaResponse> cancelar(@PathVariable Long id) {
-        ReservaResponse reservaResponse = reservaService.cancelar(id);
-        return ResponseEntity.ok(reservaResponse);
+    public ResponseEntity<ReservaResponse> cancelar(
+            @PathVariable Long id,
+            @RequestHeader("X-Usuario-Id") Long solicitanteId) {
+
+        return ResponseEntity.ok(reservaService.cancelar(id, solicitanteId));
     }
 
 

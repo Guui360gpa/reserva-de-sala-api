@@ -35,6 +35,10 @@ public class Usuario {
     @Column(nullable = false)
     private StatusUsuario statusUsuario;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PerfilUsuario perfil = PerfilUsuario.USUARIO;
+
     @OneToMany(mappedBy = "usuario")
     private List<Reserva> reservas = new ArrayList<>();
 
@@ -53,4 +57,8 @@ public class Usuario {
     }
 
     public Usuario() {}
+
+    public boolean isAdmin() {
+        return this.perfil == PerfilUsuario.ADMIN;
+    }
 }

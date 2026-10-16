@@ -1,5 +1,7 @@
 package com.alura.reserva_de_salas_api.models;
 
+import com.alura.reserva_de_salas_api.exception.AcessoNegadoException;
+import com.alura.reserva_de_salas_api.exception.ReservaNaoCancelavelException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,6 +39,8 @@ public class Reserva {
     @Column(name = "status_reserva",nullable = false)
     private StatusReserva statusReserva;
 
+
+
     public Reserva(Usuario usuario, Sala sala, LocalDateTime dataInicio, LocalDateTime dataFim, Integer quantidadePessoas) {
         this.usuario = usuario;
         this.sala = sala;
@@ -47,4 +51,16 @@ public class Reserva {
     }
 
     public Reserva() {}
+
+
+    public void cancelar(Usuario solicitante, LocalDateTime agora) {
+        if (statusReserva != StatusReserva.ATIVA || !dataFim.isAfter(agora)){
+            throw new ReservaNaoCancelavelException("Esta reserva não pode ser cancelada");
+        }
+        boolean ehDono = usuario.getId().equals(solicitante.getId());
+        if (!ehDono && !solicitante.isAdmin()) {
+            throw new AcessoNegadoException("Apenas o criador ou um administrador pode cancelar a reserva.");
+        }
+        statusReserva = StatusReserva.CANCELADA
+    }
 }

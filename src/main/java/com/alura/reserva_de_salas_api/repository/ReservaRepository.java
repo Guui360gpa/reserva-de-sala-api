@@ -53,4 +53,17 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
         """)
     List<Reserva> listarEmAndamento(@Param("agora") LocalDateTime agora);
 
+    @Query("""
+    SELECT COUNT(r) > 0 FROM Reserva r
+    WHERE r.sala.id = :salaId
+      AND r.statusReserva IN (
+          com.alura.reserva_de_salas_api.models.StatusReserva.ATIVA,
+          com.alura.reserva_de_salas_api.models.StatusReserva.EM_ANDAMENTO)
+      AND r.dataInicio < :fim
+      AND r.dataFim > :inicio
+    """)
+    boolean existeConflito(@Param("salaId") Long salaId,
+                           @Param("inicio") LocalDateTime inicio,
+                           @Param("fim") LocalDateTime fim);
+
 }

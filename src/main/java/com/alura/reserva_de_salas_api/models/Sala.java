@@ -42,4 +42,18 @@ public class Sala {
     }
 
     public Sala() {}
+
+    public int capacidadeMinima() {
+        double percentual;
+
+        if (capacidade <= 10) {
+            return 1;                // salas pequenas: sem mínimo
+        } else if (capacidade <= 30) {
+            percentual = 0.30;       // 30%
+        } else {
+            percentual = 0.50;       // 50%
+        }
+
+        return (int) Math.ceil(capacidade * percentual);
+    }
 }
